@@ -1,49 +1,58 @@
 package com.narxoz.rpg.combatant;
 
-/**
- * Represents a player-controlled hero participating in the dungeon encounter.
- * Adapted from Homework 6.
- *
- * Students: you may extend this class as needed for your implementation.
- */
+import com.narxoz.rpg.strategy.CombatStrategy;
+
 public class Hero {
+    private String name;
+    private int maxHp;
+    private int currentHp;
+    private int attackPower;
+    private int defense;
+    private CombatStrategy strategy;
 
-    private final String name;
-    private int hp;
-    private final int maxHp;
-    private final int attackPower;
-    private final int defense;
-
-    public Hero(String name, int hp, int attackPower, int defense) {
+    public Hero(String name, int maxHp, int attackPower, int defense, CombatStrategy strategy) {
         this.name = name;
-        this.hp = hp;
-        this.maxHp = hp;
+        this.maxHp = maxHp;
+        this.currentHp = maxHp;
         this.attackPower = attackPower;
         this.defense = defense;
+        this.strategy = strategy;
     }
 
-    public String getName()        { return name; }
-    public int getHp()             { return hp; }
-    public int getMaxHp()          { return maxHp; }
-    public int getAttackPower()    { return attackPower; }
-    public int getDefense()        { return defense; }
-    public boolean isAlive()       { return hp > 0; }
+    public String getName() { return name; }
+    public int getCurrentHp() { return currentHp; }
+    public int getMaxHp() { return maxHp; }
+    public int getAttackPower() { return attackPower; }
+    public int getDefense() { return defense; }
+    public boolean isAlive() { return currentHp > 0; }
 
-    /**
-     * Reduces this hero's HP by the given amount, clamped to zero.
-     *
-     * @param amount the damage to apply; must be non-negative
-     */
-    public void takeDamage(int amount) {
-        hp = Math.max(0, hp - amount);
+    public void setStrategy(CombatStrategy strategy) {
+        this.strategy = strategy;
+        System.out.printf("[ГЕРОЙ %s] Сменил стратегию на %s%n", name, strategy.getName());
     }
 
-    /**
-     * Restores this hero's HP by the given amount, clamped to maxHp.
-     *
-     * @param amount the HP to restore; must be non-negative
-     */
+    public CombatStrategy getStrategy() { return strategy; }
+
+    public int calculateDamage() {
+        return strategy.calculateDamage(attackPower);
+    }
+
+    public int calculateDefense() {
+        return strategy.calculateDefense(defense);
+    }
+
+    public void takeDamage(int damage) {
+        if (damage < 0) damage = 0;
+        currentHp = Math.max(0, currentHp - damage);
+    }
+
     public void heal(int amount) {
-        hp = Math.min(maxHp, hp + amount);
+        if (!isAlive()) return;
+        currentHp = Math.min(maxHp, currentHp + amount);
+    }
+
+    @Override
+    public String toString() {
+        return name + " (HP:" + currentHp + "/" + maxHp + ")";
     }
 }
